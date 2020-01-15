@@ -9,21 +9,21 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 public class ATTest {
-    WebDriver driver;
+    WebDriver webDriver;
 
     @BeforeMethod
     public void setup() {
         WebDriverManager.firefoxdriver().setup();
-        driver = new FirefoxDriver();
+        webDriver = new FirefoxDriver();
     }
     @Test
     public void MethodTest() {
-        driver.get("http://otus.ru");
+        webDriver.get("http://otus.ru");
 
     }
     @AfterMethod
     public void clDown() {
-        driver.quit();
+        webDriver.quit();
     }
 
 }
