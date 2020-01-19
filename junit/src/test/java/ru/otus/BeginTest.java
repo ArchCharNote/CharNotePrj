@@ -1,47 +1,74 @@
 package ru.otus;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
+
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class BeginTest {
     static final Logger logger = LogManager.getLogger(BeginTest.class);
 
 
+    @RunWith(value = Parameterized.class)
+    public static class JunitTest {
+
+        public String baseUrl = "http://otus.ru";
+        public static WebDriver webDriver;
+        private String str;
 
 
+        public JunitTest(String str) {
+            this.str = str;
+        }
 
-    @Test
-    public void Chrome() {
-        System.setProperty("webdriver.chrome.driver", "../executable/chromedriver.exe");
-        ChromeDriver driver = new ChromeDriver();
-        driver.get("https://otus.ru/");
-        String title = driver.getTitle();
-        Assert.assertTrue(title.equals("Онлайн‑курсы для профессионалов, дистанционное обучение современным профессиям"));
-    }
+        @BeforeClass
+        public static void setup() {
+            WebDriverManager.firefoxdriver().setup();
+            WebDriverManager.chromedriver().setup();
+        }
 
-    @Test
-    public void Firefox() {
-        System.setProperty("webdriver.Firefox.driver", "../executable/geckodriver.exe");
-        FirefoxDriver driver = new FirefoxDriver();
-        driver.get("https://otus.ru/");
-        String title = driver.getTitle();
-        Assert.assertTrue(title.equals("Онлайн‑курсы для профессионалов, дистанционное обучение современным профессиям"));
-    }
+        @Parameterized.Parameters
+        public static Collection<Object[]> data() {
+            Object[][] data = new Object[][] { {"FirefoxDriver"}, {"ChromeDriver"} };
+            return Arrays.asList(data);
+        }
 
-    @AfterClass
-    public static void afterClass() {
-        logger.info("Test complete");
-    }
+        @Test
+        public void pushTest() {
+            if (str == "FirefoxDriver"){
+                webDriver = new FirefoxDriver();
+                logger.info("Firefox driver begin");
+            }else{
+                webDriver = new ChromeDriver();
+                logger.info("Chrome driver begin");
+            }
+            try {
+                webDriver.get(baseUrl);
+                String title = webDriver.getTitle();
+                Assert.assertTrue(title.equals("Онлайн‑курсы для профессионалов, дистанционное обучение современным профессиям"));
+            }catch (Exception ex){
+                logger.error("Test crash");
+            }
+        }
 
-    @AfterMethod
-    public void afterMethod() {
-        logger.info("Test complete");
+        @AfterClass
+        public static void closeBrowser() {
+            if(webDriver != null){
+                logger.info("Test complete");
+            }
+        }
     }
 
 }
